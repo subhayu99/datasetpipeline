@@ -5,13 +5,13 @@ import openai
 from .utils import get_openai_rate_limit_seconds
 from .logger import LOGGER
 
-
-# Configuration for OpenAI API | TODO: Need to make it configurable in the future
+# Configuration for OpenAI API
 OPENAI_CONFIG = {
     "api_key": os.getenv("OPENAI_API_KEY"),
-    "model": "gpt-4o",
-    "max_tokens": 4096,
-    "timeout": 30,
+    "model": os.getenv("OPENAI_MODEL", "gpt-4.1-nano"),  # Configurable via environment variable
+    "max_tokens": int(os.getenv("OPENAI_MAX_TOKENS", "4096")),
+    "timeout": int(os.getenv("OPENAI_TIMEOUT", "30")),
+    "temperature": float(os.getenv("OPENAI_TEMPERATURE", "0.7")),
 }
 
 def get_openai_client():
@@ -38,7 +38,7 @@ def get_openai_client():
 def call_openai_api(
     messages: list[dict[str, str]],
     model: Optional[str] = None,
-    temperature: float = 0.7,
+    temperature: Optional[float] = None,
     max_tokens: Optional[int] = None,
     n: int = 1,
     logger: Callable[[str, str], None] = LOGGER.log,
@@ -51,7 +51,7 @@ def call_openai_api(
     Args:
         messages (list[dict[str, str]]): A list of dictionaries representing the conversation messages.
         model (str, optional): The model to use. Defaults to configured model.
-        temperature (float, optional): The temperature parameter for text generation. Defaults to 0.7.
+        temperature (float, optional): The temperature parameter for text generation. Defaults to configured temperature.
         max_tokens (int, optional): Maximum tokens to generate. Defaults to configured max_tokens.
         n (int, optional): The number of text generation samples to generate. Defaults to 1.
         logger (Callable[[str, str], None], optional): A logger function. Defaults to LOGGER.log.
@@ -76,6 +76,7 @@ def call_openai_api(
     
     # Use provided parameters or fall back to defaults
     model = model or OPENAI_CONFIG["model"]
+    temperature = temperature if temperature is not None else OPENAI_CONFIG["temperature"]
     max_tokens = max_tokens or OPENAI_CONFIG["max_tokens"]
     
     client = get_openai_client()
@@ -135,7 +136,7 @@ def call_openai_api(
 def call_openai_api_simple(
     prompt: str,
     model: Optional[str] = None,
-    temperature: float = 0.7,
+    temperature: Optional[float] = None,
     max_tokens: Optional[int] = None,
 ) -> Optional[str]:
     """
@@ -143,9 +144,9 @@ def call_openai_api_simple(
     
     Args:
         prompt (str): The prompt to send to the API.
-        model (str, optional): The model to use.
-        temperature (float, optional): The temperature parameter.
-        max_tokens (int, optional): Maximum tokens to generate.
+        model (str, optional): The model to use. Defaults to configured model.
+        temperature (float, optional): The temperature parameter. Defaults to configured temperature.
+        max_tokens (int, optional): Maximum tokens to generate. Defaults to configured max_tokens.
         
     Returns:
         str: The generated text response, or None if failed.
@@ -169,12 +170,49 @@ def set_openai_config(**kwargs):
     Update OpenAI configuration.
     
     Args:
-        **kwargs: Configuration parameters to update (api_key, model, max_tokens, timeout)
+        **kwargs: Configuration parameters to update (api_key, model, max_tokens, timeout, temperature)
     """
     global OPENAI_CONFIG
     for key, value in kwargs.items():
         if key in OPENAI_CONFIG:
             OPENAI_CONFIG[key] = value
+        else:
+            raise ValueError(f"Unknown configuration key: {key}. Valid keys: {list(OPENAI_CONFIG.keys())}")
+
+def get_available_models():
+    """
+    Get list of commonly available OpenAI models.
+    
+    Returns:
+        list: List of model names
+    """
+    return [
+        "o4-mini",
+        "o3-mini",
+        "o1-mini",
+        "gpt-4.1-nano",
+        "gpt-4.1-mini",
+        "gpt-4o-mini",
+        "gpt-4.1",
+        "gpt-4o",
+        "o1",
+        "o1-pro",
+        "o3",
+        "gpt-4.5-preview",
+    ]
+
+def validate_model(model: str) -> bool:
+    """
+    Check if the model name is in the list of commonly available models.
+    Note: This doesn't guarantee the model is accessible with your API key.
+    
+    Args:
+        model (str): Model name to validate
+        
+    Returns:
+        bool: True if model is in the known list
+    """
+    return model in get_available_models()
 
 def get_openai_config() -> Dict[str, Any]:
     """
@@ -188,14 +226,42 @@ def get_openai_config() -> Dict[str, Any]:
 if __name__ == "__main__":
     # Example usage
     try:
+        print("Available models:", get_available_models())
+        print(f"Current configuration: {get_openai_config()}")
+        
         response = call_openai_api_simple(
             prompt="Only give the answer. 1+2=",
             temperature=0,
         )
         if response:
-            print(response)
+            print(f"Response: {response}")
         else:
             print("No response received")
+            
+        # Example of using different models
+        print("\n--- Testing different models ---")
+        models_to_test = ["gpt-3.5-turbo", "gpt-4"]
+        
+        for model in models_to_test:
+            if validate_model(model):
+                print(f"Testing {model}...")
+                try:
+                    response = call_openai_api_simple(
+                        prompt="Say 'Hello' in one word.",
+                        model=model,
+                        temperature=0,
+                    )
+                    print(f"{model}: {response}")
+                except Exception as e:
+                    print(f"{model}: Error - {e}")
+            else:
+                print(f"{model}: Not in validated model list")
+                
     except Exception as e:
         print(f"Error: {e}")
-        print("Make sure to set your OPENAI_API_KEY environment variable")
+        print("Configuration help:")
+        print("- Set OPENAI_API_KEY environment variable")
+        print("- Optionally set OPENAI_MODEL (default: gpt-4)")
+        print("- Optionally set OPENAI_MAX_TOKENS (default: 4096)")
+        print("- Optionally set OPENAI_TEMPERATURE (default: 0.7)")
+        print("- Optionally set OPENAI_TIMEOUT (default: 30)")
