@@ -1,0 +1,14 @@
+load:
+    huggingface:
+        path: Open-Orca/1million-gpt-4
+        split: train
+        save: false
+        take_rows: 20000
+format:
+    to_text: null
+    output:
+        return_only_messages: true
+save:
+    local:
+        directory: processed
+        filetype: parquet
