@@ -1,0 +1,129 @@
+[project]
+name = "datasetpipeline"
+version = "0.1.0"
+description = "A data processing and analysis pipeline designed to handle various jobs related to data transformation, quality assessment, deduplication, and formatting. The pipeline can be configured and executed using YAML configuration files."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Subhayu Kumar Bala", email = "balasubhayu99@gmail.com"},
+]
+maintainers = [
+    {name = "Subhayu Kumar Bala", email = "balasubhayu99@gmail.com"},
+]
+license = {text = "MIT"}
+keywords = ["dataset", "pipeline", "ml", "data-processing", "deduplication", "quality-analysis"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing",
+]
+dependencies = [
+    "datasets",
+    "pandas",
+    "openai==0.28.1",
+    "retry",
+    "fuzzywuzzy",
+    "python-levenshtein",
+    "pydantic",
+    "typer",
+    "rich",
+    "loguru",
+    "langchain-community",
+    "langchain-core",
+    "SQLAlchemy",
+    "ruamel.yaml",
+    # Lightweight embeddings dependencies (always available)
+    "onnxruntime",
+    "huggingface-hub",
+    "numpy",
+    # FAISS is needed for semantic deduplication regardless of embedding mode
+    "faiss-cpu",
+]
+
+[project.urls]
+Homepage = "https://github.com/subhayu99/datasetpipeline"
+Documentation = "https://github.com/subhayu99/datasetpipeline#readme"
+Repository = "https://github.com/subhayu99/datasetpipeline"
+"Bug Tracker" = "https://github.com/subhayu99/datasetpipeline/issues"
+
+# CLI entry points - works with both pip install and uv tool
+[project.scripts]
+datasetpipeline = "app.cli:main"
+dsp = "app.cli:main"  # Short alias
+
+[project.optional-dependencies]
+# Full embeddings support with HuggingFace transformers
+full = [
+    "langchain-community",
+    "sentence-transformers",
+    "torch",
+    "transformers",  # Added - required for HuggingFaceEmbeddings
+]
+
+# Development dependencies
+dev = [
+    "ipykernel",
+    "tabulate",
+    "pytest",           # Added for testing
+    "pytest-cov",       # Added for coverage
+    "black",            # Added for code formatting
+    "flake8",           # Added for linting
+    "mypy",             # Added for type checking
+    "twine",            # Added for publishing
+    "build",            # Added for building
+]
+
+# GPU support (optional)
+gpu = [
+    "faiss-gpu",        # GPU-accelerated FAISS
+    "torch[cuda]",      # CUDA support for PyTorch
+]
+
+# All optional dependencies combined
+all = [
+    "langchain-community",
+    "sentence-transformers",
+    "torch",
+    "transformers",
+    "faiss-gpu",
+]
+
+[dependency-groups]
+# Keep dev group for compatibility, but recommend using optional-dependencies
+dev = [
+    "ipykernel",
+    "tabulate",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Configure Hatchling to include the app directory
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
