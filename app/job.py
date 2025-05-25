@@ -49,7 +49,7 @@ from .format import Format, FormatConfig
 from .dedup import Dedup, DedupConfig
 from .analyzer import Analyzer, AnalyzerConfig
 from .saver import Saver, SaverConfig
-from .helpers import run_parallel_exec
+from .helpers import run_parallel_exec, is_tsfile
 from .helpers.logger import LOGGER
 
 
@@ -109,7 +109,8 @@ class Job(BaseModel):
         if self.config.save is None:
             return
         name, dataset = name_and_dataset
-        self.config.save.local.filename = name
+        if not self.config.save.local.filename or is_tsfile(self.config.save.local.filename):
+            self.config.save.local.filename = name
         saver = Saver(dataset, self.config.save)
         return saver.save()
 

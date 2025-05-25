@@ -327,7 +327,7 @@ def get_ts_filename(filepath: str | Path, add_random: bool = True):
     )
     return filepath
 
-TS_FILE_STEM_REGEX = re.compile(r"(?P<stem>.+)_(?P<uid>[0-9]{20,})(?:_[0-9]+)?(?P<suffix>\.\w+)")
+TS_FILE_STEM_REGEX = re.compile(r"(?P<stem>.+)_(?P<uid>[0-9]{20,})(?:_[0-9]+)?(?P<suffix>\.\w+)?")
 
 def datetime_from_tsfile(filepath: str | Path):
     ts = (TS_FILE_STEM_REGEX.findall(Path(filepath).name) or [(None, None)])[0][1]
@@ -339,6 +339,8 @@ def parts_from_tsfile(filepath: str | Path) -> dict[str, str | datetime]:
         return {}
     return match.groupdict() | {"datetime": datetime_from_uid(match.group("uid"))}
 
+def is_tsfile(filepath: str | Path) -> bool:
+    return bool(TS_FILE_STEM_REGEX.search(Path(filepath).name))
 
 def add_comments(
     data: dict, desc_map: dict, parent_key="", desc_key="__desc__"

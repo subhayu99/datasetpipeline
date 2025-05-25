@@ -18,7 +18,7 @@ class FileType(str, Enum):
 
 class LocalDirSaverConfig(BaseSaverConfig):
     directory: Path | str = Field(default="processed",description="Directory path to save the dataset. Defaults to 'processed'")
-    filetype: FileType | str | None = Field(default=FileType.PARQUET,description=f"Filetype to save the dataset. Can be one of '{FileType.CSV}', '{FileType.JSON}' or '{FileType.PARQUET}'. Defaults to '{FileType.PARQUET}'")
+    filetype: FileType | str | None = Field(default=FileType.PARQUET,description=f"Filetype to save the dataset. Can be one of {', '.join(x.value for x in FileType)}. Defaults to '{FileType.PARQUET.value}'")
 
     @field_validator('directory')
     @classmethod
@@ -39,7 +39,7 @@ class LocalDirSaverConfig(BaseSaverConfig):
         return FileType.PARQUET
 
 class LocalSaverConfig(LocalDirSaverConfig):
-    filename: str | None = Field(default=None,description="Filename to save the dataset. If null auto generates a time based filename and saves in parquet.")
+    filename: str | None = Field(default=None, description="Filename to save the dataset. If null auto generates a time based filename (which if not changed in the config, will be replaced when saving the processed dataset).")
     
     @model_validator(mode="after")
     def validate_fields(self):
@@ -58,7 +58,6 @@ class LocalSaverConfig(LocalDirSaverConfig):
                 self.filetype = FileType.PARQUET
         return self
 
-    @computed_field
     @property
     def save_path(self) -> Path:
         suffix = f".{self.filetype.value}"
