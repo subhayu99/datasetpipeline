@@ -52,10 +52,7 @@ class LocalFileLoaderConfig(BaseLoaderConfig):
         self.path = Path(self.path)
         assert self.path.exists(), f"Path {self.path} does not exist"
         assert self.path.is_file(), f"Path {self.path} is not a file"
-        assert (
-            self.path.suffix.replace(".", "") in {x.value for x in FileType}, 
-            f"Invalid filetype: {self.path.suffix}"
-        )
+        assert self.path.suffix.replace(".", "") in {x.value for x in FileType}, f"Invalid filetype: {self.path.suffix}"
         return self
 
 class LocalFileLoader(BaseLoader):
