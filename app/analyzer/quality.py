@@ -45,7 +45,7 @@ TEXT_QUALITY_EXAMPLE_MESSAGES = Messages(
     messages=[
         Message(
             role=Role.SYSTEM.value,
-            content="You are a helpful assistant who can judge a content and give some metrics on it.\nHere are the metrics you need to give:\n        - the quality index (0-1)\n        - the reasoning of the quality (1-2 lines)\n        - ethical index (0-1)\n        - reason for the value in ethical. (1-2 lines)\n        - the category of the content (pick from the categories, if given else make your own)\n        - language (use ISO code: en, hi, bn, es, it, ...)\n\nReturn in JSON format\n",
+            content=f"You are a helpful assistant who can judge a content and give some metrics on it.\n\nYou must generate the output in JSON in the specified format:\n```json_schema\n{TextQuality.model_json_schema()}\n```",
         ),
         Message(
             role=Role.USER.value,
@@ -68,7 +68,7 @@ TEXT_QUALITY_EXAMPLE_MESSAGES = Messages(
 class QualityAnalyzerConfig(BaseAnalyzerConfig):
     column_name: str = Field(default="messages", description="Name of the column to check the quality. Defaults to 'messages'")
     categories: list[str] | None = Field(default=None, description="List of categories to use. Defaults to 'null'")
-    example_messages: Messages = Field(default=TEXT_QUALITY_EXAMPLE_MESSAGES, description=f"Example messages to send to OpenAI.")
+    example_messages: Messages = Field(default=TEXT_QUALITY_EXAMPLE_MESSAGES, description="Example messages to send to OpenAI.")
     
     @model_validator(mode="after")
     def validate_messages(self):
@@ -78,7 +78,7 @@ class QualityAnalyzerConfig(BaseAnalyzerConfig):
                 TextQuality.from_json(x.content, fuzzy=False) 
                 for x in self.example_messages.messages if x.role == Role.ASSISTANT.value
             ]
-        except Exception as e:
+        except Exception:
             raise ValueError(
                 f"Assistant messages for `{self.__class__.__name__}.example_messages` "
                 f"must be in the following format: {TEXT_QUALITY_EXAMPLE_MESSAGES.messages[-1].content}"
@@ -118,6 +118,7 @@ class QualityAnalyzer(BaseAnalyzer):
             warn(f"Column {self.config.column_name!r} is not a string column. Skipping {self.name!r} analysis.")
             return self.dataset
         texts: set[str] = set(self.dataset[self.config.column_name])
+        self.get_text_quality(list(texts)[0])
         text_qualities: dict[str, TextQuality] = dict(run_parallel_exec(self.get_text_quality, texts))
         
         # NOTE - Fuzzy match categories and finds the best matching category. Not needed anymore
