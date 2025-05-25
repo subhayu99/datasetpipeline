@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://pepy.tech/badge/datasetpipeline)](https://pepy.tech/project/datasetpipeline)
 
-**Transform messy datasets into ML-ready gold.** A powerful, configurable pipeline for dataset processing, quality assessment, and standardization—built by ML practitioners, for ML practitioners.
+**Transform messy datasets into ML-ready gold.** A powerful, configurable pipeline for dataset processing, quality assessment, and standardization—built by ML practitioner(s), for ML practitioners.
 
 ---
 
@@ -18,6 +18,7 @@
 ### Born from Real-World Pain 🔥
 
 This project emerged from my experience as a data engineer and MLOps practitioner. I was constantly:
+
 - Ingesting diverse datasets for LLM fine-tuning
 - Converting everything to OpenAI-compatible formats
 - Writing repetitive preprocessing scripts
@@ -60,14 +61,121 @@ pip install "datasetpipeline[all]"
 ### Your First Pipeline
 
 ```bash
-# Generate a sample configuration
-datasetpipeline sample my-first-job.yml
+# Generate a minimal sample configuration with comments
+datasetpipeline sample my-first-job.yml --template minimal
+
+# Or generate a full sample with all options and comments
+datasetpipeline sample my-first-job.yml --template full
 
 # Run the pipeline
 datasetpipeline run my-first-job.yml
 
 # That's it! 🎉
 ```
+
+---
+
+## ⚙️ Configuration Guidelines
+
+### 🚨 Important Configuration Rule
+
+**When disabling pipeline components, you must keep the section keys present with `null` values. Never completely remove the top-level keys.**
+
+#### ✅ Correct Way to Disable Components
+
+```yaml
+load:
+  huggingface:
+    path: "teknium/OpenHermes-2.5"
+    split: "train"
+
+format:
+  sft:
+    use_openai: true
+
+# Disable deduplication - keep the key with null
+deduplicate: null
+
+# Disable analysis - keep the key with null  
+analyze: null
+
+save:
+  local:
+    directory: "output"
+    filetype: "jsonl"
+```
+
+#### ❌ Wrong Way (Will Cause Errors)
+
+```yaml
+load:
+  huggingface:
+    path: "teknium/OpenHermes-2.5"
+    split: "train"
+
+format:
+  sft:
+    use_openai: true
+
+# DON'T DO THIS - completely removing keys
+# deduplicate: <-- missing entirely
+# analyze: <-- missing entirely
+
+save:
+  local:
+    directory: "output"
+    filetype: "jsonl"
+```
+
+#### 💡 Alternative: Comment Out Values, Keep Keys
+
+```yaml
+load:
+  huggingface:
+    path: "teknium/OpenHermes-2.5"
+    split: "train"
+
+format:
+  sft:
+    use_openai: true
+
+# Temporarily disable deduplication
+deduplicate:
+  # semantic:
+  #   threshold: 0.85
+  #   column: "messages"
+
+# Disable analysis for now
+analyze:
+  # quality:
+  #   column_name: "messages"
+  #   categories: ["code", "reasoning"]
+
+save:
+  local:
+    directory: "output"
+    filetype: "jsonl"
+```
+
+### Why This Matters
+
+DatasetPipeline expects all major pipeline sections (`load`, `format`, `deduplicate`, `analyze`, `save`) to be present in the configuration. This design ensures:
+
+- **Consistent pipeline structure** across all jobs
+- **Clear intent** - you explicitly choose to skip steps vs. forgetting them
+- **Easy re-enablement** - uncomment values instead of rewriting sections
+- **Better error messages** - the pipeline knows what you intended
+
+### 🎛️ Managing Configuration Complexity
+
+**Problem**: The full sample configuration can be overwhelming with all comments and options.
+
+**Solutions**:
+
+1. **Start minimal** - Use `--template minimal` as a starting point for clean, simple configs
+2. **Use templates** - Pre-built configurations for common use cases (`--template sft`, `--template dpo`, `--template analysis`)
+3. **Progressive enhancement** - Start simple, add complexity as needed
+4. **Reference mode** - Use `--template full` when you need to see all available options
 
 ---
 
@@ -115,15 +223,18 @@ datasetpipeline run jobs/sft-training.yml
 
 ---
 
-## 🛠️ Core Commands
+## 🛠️ Core Commands & Sample Generation
+
+### Command Reference
 
 | Command | Purpose | Example |
 |---------|---------|---------|
 | `list` | Preview available jobs | `datasetpipeline list jobs/` |
 | `run` | Execute pipeline(s) | `datasetpipeline run jobs/my-job.yml` |
-| `sample` | Generate template configs | `datasetpipeline sample new-job.yml` |
+| `sample` | Generate template configs | `datasetpipeline sample new-job.yml --template=minimal` |
 
 ### Batch Processing
+
 ```bash
 # Process all jobs in a directory
 datasetpipeline run jobs/
@@ -137,11 +248,13 @@ datasetpipeline list jobs/
 ## 🏗️ Pipeline Components
 
 ### 📥 Data Loading
+
 - **Hugging Face**: Direct dataset integration
 - **Local Files**: JSON, CSV, Parquet, JSONL
 - **Cloud Storage**: S3, GCS (coming soon)
 
 ### 🔧 Data Formatting
+
 - **SFT (Supervised Fine-Tuning)**: OpenAI chat format
 - **DPO (Direct Preference Optimization)**: Preference pairs
 - **Conversational**: Multi-turn dialogue format
@@ -149,16 +262,19 @@ datasetpipeline list jobs/
 - **Custom Merging**: Combine multiple fields intelligently
 
 ### 🧹 Deduplication
+
 - **Semantic**: Embedding-based similarity detection
 - **Exact**: Hash-based duplicate removal
 - **Fuzzy**: Near-duplicate detection
 
 ### 📊 Quality Analysis
+
 - **Automated Categorization**: Code, math, reasoning, creative writing
 - **Quality Scoring**: Length, complexity, coherence metrics
 - **Custom Categories**: Define your own quality dimensions
 
 ### 💾 Data Saving
+
 - **Multiple Formats**: Parquet, JSONL, CSV
 - **Flexible Output**: Local files, structured directories
 - **Metadata**: Pipeline provenance and statistics
@@ -186,6 +302,7 @@ datasetpipeline/
 ## 🎨 Advanced Configuration
 
 ### Conditional Processing
+
 ```yaml
 load:
   huggingface:
@@ -199,26 +316,75 @@ format:
     use_openai: true
     min_message_length: 10
     max_conversation_turns: 20
-```
 
-### Quality-Based Filtering
-```yaml
+# Skip deduplication for this job
+deduplicate: null
+
 analyze:
   quality:
     column_name: "text"
     min_score: 0.7
     categories: ["technical", "creative"]
     save_analysis: true
+
+save:
+  local:
+    directory: "filtered_data"
+    filetype: "parquet"
+```
+
+### Quality-Based Filtering
+
+```yaml
+load:
+  local:
+    path: "raw_data.jsonl"
+
+# Skip formatting - data is already in correct format
+format: null
+
+deduplicate:
+  exact:
+    column: "content"
+
+analyze:
+  quality:
+    column_name: "text"
+    min_score: 0.7
+    categories: ["technical", "creative"]
+    save_analysis: true
+
+save:
+  local:
+    directory: "cleaned_data"
+    filetype: "jsonl"
 ```
 
 ### Custom Deduplication
+
 ```yaml
+load:
+  huggingface:
+    path: "my-dataset"
+
+format:
+  text:
+    column: "content"
+
 deduplicate:
   semantic:
     threshold: 0.9
     model: "sentence-transformers/all-MiniLM-L6-v2"
     batch_size: 32
     use_gpu: true
+
+# Skip analysis for faster processing
+analyze: null
+
+save:
+  local:
+    directory: "deduped_data"
+    filetype: "parquet"
 ```
 
 ---
@@ -254,6 +420,7 @@ class MyFormatter(BaseFormatter):
 ### 🚀 Contribution-Friendly
 
 This architecture means:
+
 - **Low barrier to entry**: Add one component without touching others
 - **Clean interfaces**: Well-defined contracts between components
 - **Easy testing**: Mock and test components in isolation
@@ -288,6 +455,7 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 4. **Submit** a pull request
 
 ### Development Setup
+
 ```bash
 git clone https://github.com/subhayu99/datasetpipeline
 cd DatasetPipeline
@@ -296,6 +464,7 @@ pre-commit install
 ```
 
 ### Areas We Need Help
+
 - 🌐 Cloud storage integrations (S3, GCS, Azure)
 - 🔍 Advanced quality metrics
 - 📈 Performance optimizations
