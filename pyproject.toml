@@ -29,7 +29,7 @@ classifiers = [
 dependencies = [
     "datasets",
     "pandas",
-    "openai==0.28.1",
+    "openai==1.82.0",
     "retry",
     "fuzzywuzzy",
     "python-levenshtein",
