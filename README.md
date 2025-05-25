@@ -314,7 +314,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 Built with love by the ML community, for the ML community. Special thanks to all contributors and users who help make dataset preparation less painful.
 
-**Star the repo if DatasetPipeline saves you time!** ⭐\
+**Star the repo if DatasetPipeline saves you time!** ⭐
 
 ---
 
