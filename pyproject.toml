@@ -5,10 +5,10 @@ description = "A data processing and analysis pipeline designed to handle variou
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    {name = "Subhayu Kumar Bala", email = "balasubhayu99@gmail.com"},
+    { name = "Subhayu Kumar Bala", email = "balasubhayu99@gmail.com" },
 ]
 maintainers = [
-    {name = "Subhayu Kumar Bala", email = "balasubhayu99@gmail.com"},
+    { name = "Subhayu Kumar Bala", email = "balasubhayu99@gmail.com" },
 ]
 license = {text = "MIT"}
 keywords = ["dataset", "pipeline", "ml", "data-processing", "deduplication", "quality-analysis"]
@@ -27,26 +27,26 @@ classifiers = [
     "Topic :: Text Processing",
 ]
 dependencies = [
-    "datasets",
-    "pandas",
+    "datasets==3.6.0",
+    "pandas==2.2.3",
     "openai==1.82.0",
-    "retry",
-    "fuzzywuzzy",
-    "python-levenshtein",
-    "pydantic",
-    "typer",
-    "rich",
-    "loguru",
-    "langchain-community",
-    "langchain-core",
-    "SQLAlchemy",
+    "retry==0.9.2",
+    "fuzzywuzzy==0.18.0",
+    "python-levenshtein==0.27.1",
+    "pydantic==2.11.5",
+    "typer==0.15.4",
+    "rich==14.0.0",
+    "loguru==0.7.3",
+    "langchain-community==0.3.24",
+    "langchain-core==0.3.61",
+    "sqlalchemy==2.0.41",
     "ruamel.yaml",
     # Lightweight embeddings dependencies (always available)
-    "onnxruntime",
-    "huggingface-hub",
-    "numpy",
+    "onnxruntime==1.22.0",
+    "huggingface-hub==0.32.0",
+    "numpy==2.2.6",
     # FAISS is needed for semantic deduplication regardless of embedding mode
-    "faiss-cpu",
+    "faiss-cpu==1.11.0",
 ]
 
 [project.urls]
@@ -63,38 +63,38 @@ dsp = "app.cli:main"  # Short alias
 [project.optional-dependencies]
 # Full embeddings support with HuggingFace transformers
 full = [
-    "langchain-community",
-    "sentence-transformers",
-    "torch",
-    "transformers",  # Added - required for HuggingFaceEmbeddings
+    "langchain-community==0.3.24",
+    "sentence-transformers==4.1.0",
+    "torch==2.7.0",
+    "transformers==4.52.3",   # Added - required for HuggingFaceEmbeddings
 ]
 
 # Development dependencies
 dev = [
-    "ipykernel",
-    "tabulate",
-    "pytest",           # Added for testing
-    "pytest-cov",       # Added for coverage
-    "black",            # Added for code formatting
-    "flake8",           # Added for linting
-    "mypy",             # Added for type checking
-    "twine",            # Added for publishing
-    "build",            # Added for building
+    "ipykernel==6.29.5",
+    "tabulate==0.9.0",
+    "pytest==8.3.5",           # Added for testing
+    "pytest-cov==6.1.1",       # Added for coverage
+    "black==25.1.0",           # Added for code formatting
+    "flake8==7.2.0",           # Added for linting
+    "mypy==1.15.0",            # Added for type checking
+    "twine==6.1.0",            # Added for publishing
+    "build==1.2.2.post1",      # Added for building
 ]
 
 # GPU support (optional)
 gpu = [
-    "faiss-gpu",        # GPU-accelerated FAISS
-    "torch[cuda]",      # CUDA support for PyTorch
+    "faiss-gpu==1.7.2",        # GPU-accelerated FAISS
+    "torch[cuda]==2.7.0",      # CUDA support for PyTorch
 ]
 
 # All optional dependencies combined
 all = [
-    "langchain-community",
-    "sentence-transformers",
-    "torch",
-    "transformers",
-    "faiss-gpu",
+    "langchain-community==0.3.24",
+    "sentence-transformers==4.1.0",
+    "torch==2.7.0",
+    "transformers==4.52.3",
+    "faiss-gpu==1.7.2",
 ]
 
 [dependency-groups]
@@ -114,7 +114,7 @@ packages = ["app"]
 
 [tool.black]
 line-length = 100
-target-version = ['py310']
+target-version = ["py310"]
 
 [tool.mypy]
 python_version = "3.10"
