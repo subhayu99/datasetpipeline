@@ -81,9 +81,9 @@ class ConversationalTextFormat(BaseFormat):
             n=2,
         )
         keys: list[str] = [
-            x["message"]["content"]
-            for x in response["choices"]
-            if x["message"]["content"] in self.dict_repr
+            x.message.content
+            for x in response.choices
+            if x.message.content in self.dict_repr
         ]
         return keys
 
@@ -118,7 +118,7 @@ class ConversationalTextFormat(BaseFormat):
             ],
             n=5,
         )
-        response: list[str] = [x["message"]["content"] for x in response["choices"]]
+        response: list[str] = [x.message.content for x in response.choices]
         return response
 
     def _get_col_template_map(self):

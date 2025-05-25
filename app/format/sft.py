@@ -117,7 +117,7 @@ class SFTFormat(BaseFormat):
             {"role": "assistant", "content": '{}'},
             {"role": "user", "content": json.dumps(data)}
         ])
-        data: dict[str, str] = json.loads(response["choices"][0]["message"]["content"])
+        data: dict[str, str] = json.loads(response.choices[0].message.content)
         return {Role(k): v for k, v in data.items()}
     
     @property
