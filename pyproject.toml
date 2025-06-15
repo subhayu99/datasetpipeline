@@ -1,6 +1,6 @@
 [project]
 name = "datasetpipeline"
-version = "0.2.0"
+version = "0.2.1"
 description = "A data processing and analysis pipeline designed to handle various jobs related to data transformation, quality assessment, deduplication, and formatting. The pipeline can be configured and executed using YAML configuration files."
 readme = "README.md"
 requires-python = ">=3.10"
