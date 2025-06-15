@@ -29,6 +29,22 @@ What started as manageable became overwhelming. DatasetPipeline was built to sol
 
 ---
 
+## 🧠 Baked-in Intelligence
+
+One of DatasetPipeline's most powerful features is its **intelligent data understanding**, designed to take the guesswork out of preparing your datasets. Instead of rigid rules or tedious manual mapping, the system comes with **built-in smarts** that allow it to:
+
+- **Automatically Recognize Conversational Roles:** Ever wondered if your "human_utterance" column is the `user` and "bot_reply" is the `assistant`? DatasetPipeline already has a good idea. It's pre-trained to recognize common patterns and automatically map your raw data fields to standard roles like `system`, `user`, `assistant`, `chosen`, and `rejected`. This means less time configuring and more time doing.
+
+- **Intelligently Interpret Complex Structures:** For datasets where conversations are nested in multi-turn formats, DatasetPipeline goes a step further. It can automatically figure out which part of your data represents the `role` (who said it) and which is the `content` (what was said), even when these keys aren't explicitly named or are inconsistent. It's like having a helpful assistant who understands the natural flow of a conversation, regardless of its underlying structure.
+
+- **Adapt to Your Training Needs:** Whether you're fine-tuning a model with single prompt-response pairs (SFT) or training it to prefer one answer over another (DPO), DatasetPipeline adapts its understanding. It tailors the output format to perfectly match the requirements of these different AI training paradigms, ensuring your data is always battle-ready for the task at hand.
+
+- **Anticipate and Validate:** The system isn't just smart about understanding; it's also smart about preventing errors. It includes built-in checks to confirm your data aligns with expected formats, guiding you towards clean, high-quality inputs before you even start training.
+
+In essence, DatasetPipeline aims to be your **intuitive data partner**. It handles the complexities of data interpretation behind the scenes, allowing you to move from raw data to model-ready gold with unprecedented ease and speed.
+
+---
+
 ## ✨ Features
 
 | Feature | Description |
@@ -291,10 +307,10 @@ datasetpipeline/
 │   ├── 🔄 format/         # Data format transformations
 │   ├── 📥 loader/         # Multi-source data loading
 │   ├── 💾 saver/          # Output handling
-│   └── 🛠️ helpers/       # Utilities & common functions
-├── ⚙️ jobs/              # YAML configurations
-├── 📊 processed/         # Pipeline outputs
-└── 📜 scripts/           # Additional utilities
+│   └── 🛠️ helpers/        # Utilities & common functions
+├── ⚙️ jobs/               # Sample YAML configurations
+├── 📊 processed/          # Pipeline outputs
+└── 📜 scripts/            # Maintainer utilities
 ```
 
 ---
